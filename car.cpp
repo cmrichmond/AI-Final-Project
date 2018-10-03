@@ -1,16 +1,7 @@
 #include "car.h"
-#include<random>
-#include<string>
-#include"Constants.h"
-#include<iostream>
-#include<fstream>
-#include <cstdlib>
 
 using namespace std;
 
-int mapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map data
-int mapMasterArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contains the data for fuel spawns and other stuff; a teacher's version essentially 
-int fuelMapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contain all locations for fuel locations, w/ their values being their numbers in the sequences
 
 
 car::car()
@@ -42,10 +33,10 @@ bool car::Initialize()
 	carYPos = 0;
 	currentFuel = CAR_MAX_FUEL;
 	
+	std::random_device rdev;
+	std::default_random_engine e(rdev());
+	std::uniform_int_distribution<int> d(0, MAP_SIZE - 1);
 
-	random_device rdev;
-	default_random_engine e(rdev());
-	uniform_int_distribution<int> d(0, MAP_SIZE - 1);
 	ofstream myFile; //set up file output for testing FIXME REMOVE LATER
 	myFile.open("coordinates.txt"); //set up output file for testing FIXME REMOVE LATER
 
@@ -100,6 +91,11 @@ bool car::Initialize()
 
 		myFile << randX << "   " << randY <<"  "<<a<< endl; //output to file for reference
 	//	fuelMapArray[randX][randY] = fuelLocation; //update the fuel map array
+		Coord* point = new Coord;
+		point->x = randX;
+		point->y = randY;
+
+		fuelLocations[a] = point;
 
 		if (a == 0)
 		{
@@ -130,7 +126,9 @@ int car::getNumCars()
 //function to determine and then execute the car's next move
 bool car::findMove() 
 {
-
+	std::random_device rdev;
+	std::default_random_engine e(rdev());
+	std::uniform_int_distribution<int> d(0, MAP_SIZE - 1);
 	/*
 	
 	The logic for the car's movement should be as follows. 
@@ -204,13 +202,25 @@ bool car::findMove()
 
 				int distance = distanceA + distanceB; //combine the two distance components to have a final value
 
-				if (distance < closestDistance) //if the distance to the UNKNOWN tile we just tested is shorter than the previously recorded shortestDistance
+				if (distance <= closestDistance) //if the distance to the UNKNOWN tile we just tested is shorter than the previously recorded shortestDistance
 				{
+					if(distance < closestDistance)
+					{ 
 					closestDistance = distance; //update closestDistance 
 					targetX = i; //update x value of target tile
 					targetY = j; //update y value of target tile
+					}
+					else
+					{
+						int randChoice = d(e)%2;
+						if (randChoice == 1)
+						{
+							closestDistance = distance; //update closestDistance 
+							targetX = i; //update x value of target tile
+							targetY = j; //update y value of target tile
+						}
+					}
 				}
-				
 			}
 
 			
@@ -353,6 +363,9 @@ bool car::updateMap()
 
 	int correctFuelX, correctFuelY; //int variables to hold the values for the correct X and Y of the current fuel station
 
+	correctFuelX = fuelLocations[fuelIndicator]->x;
+	correctFuelY = fuelLocations[fuelIndicator]->y;
+/*
 	bool foundStation = false; //bool for controlling the loop if we find a visible fuel station
 
 	fstream fin; //set up file input
@@ -371,7 +384,10 @@ bool car::updateMap()
 				foundStation = true; //set foundStation true so we can exit the loop
 			}
 		}
-	}
+
+		
+
+	}*/
 
 
 	//set the position w/in the reference map at correctFuelX and correctFuelY to equal 2 (the enum for fuel stations)

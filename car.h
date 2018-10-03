@@ -1,5 +1,9 @@
 #pragma once
-
+#include "Constants.h"
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <string>
 class car
 {
 public:
@@ -29,6 +33,22 @@ public:
 	int id;
 	int firstFuelX;
 	int firstFuelY;
+
+	//maps
+	int mapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map data
+	int mapMasterArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contains the data for fuel spawns and other stuff; a teacher's version essentially 
+	int fuelMapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contain all locations for fuel locations, w/ their values being their numbers in the sequences
+	struct Coord
+	{
+		int x;
+		int y;
+	};
+
+	std::map<int, Coord*> fuelLocations;
+	std::map<int, Coord*> hazardLocations;
+	std::map<int, Coord*>::iterator mapIterator;
+
+
 
 	//Functions
 
