@@ -58,6 +58,7 @@ public:
 	bool findMove(); //function to find and execute the car's next move
 	bool checkCar(); //function to check for various effects/condiions after the car finishes a move
 
+	int findDistance(Coord*, Coord*);
 	int getNumCars();
 	;
 };

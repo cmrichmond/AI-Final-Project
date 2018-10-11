@@ -123,6 +123,19 @@ int car::getNumCars()
 	return numCars;
 }
 
+//function to find distance between two provided corodinate pairs
+//int car::findDistance(int xPos1, int yPos1, int xPos2, int yPos2)
+int car::findDistance(Coord* point1, Coord* point2)
+{
+	
+	int part1 = abs(point1->x -point2->x); //find distance between x coordinates
+	int part2 = abs(point1->y - point2->y); //find distance between y coordinates
+
+	int distance = part1 + part2; //add the parts together to find the total distance
+
+	return distance; //return the distance we calculated
+}
+
 //function to determine and then execute the car's next move
 bool car::findMove() 
 {
@@ -308,6 +321,107 @@ bool car::checkCar()
 
 	}
 
+	//Check if we hit a hazard tile
+
+	if (mapMasterArray[carXPos][carYPos]==HAZARD)
+	{
+		//first,check if we can see a fuel station
+		bool takeTheHit = false;
+		bool selfish = false;
+		bool finished = false;
+
+		std::random_device rdev;
+		std::default_random_engine e(rdev());
+		std::uniform_int_distribution<int> d(0, MAP_SIZE - 1);
+
+		for (int a = 0; a < MAP_SIZE; a++)
+		{
+			for (int b = 0; b < MAP_SIZE; b++)
+			{
+				//if the car can see a fuel station
+				if (mapArray[a][b] == FUEL)
+				{
+					//check if we can make it to the station w/ half fuel
+					Coord* point = new Coord;
+					Coord* car = new Coord;
+
+					point->x = b;
+					point->y = a;
+					car->x = carXPos;
+					car->y = carYPos;
+
+					int remainingDistance = findDistance(point, car);
+
+					//if the remainingDistance is reachable w/ half fuel, 
+
+					if (remainingDistance <= (currentFuel / 2))
+					{
+						takeTheHit = true;
+						selfish = false;
+						finished = true;
+					}
+
+					else
+					{
+						takeTheHit = false;
+						selfish = true;
+						finished = true;
+					}
+
+				}
+
+				//if no fuel station is visible, then we should do a coin flip to see if we take the hit					
+			}
+		}
+
+		if (!finished)
+		{
+			int randomChoice = d(e) % 2;
+
+			if (randomChoice == 0)
+			{
+				takeTheHit = true;
+			}
+
+			else
+			{
+				takeTheHit = false;
+				selfish = true;
+			}
+		}
+		
+		//now that we know the outcome, update stuff
+
+		//if we're dodging the hit
+		if (takeTheHit == false && selfish)
+		{
+			//swerve left or right to dodge the obstacle, losing 1 fuel in the process
+
+			currentFuel--; 
+
+			int direction = d(e) % 2;
+
+			if (direction == 1)
+			{
+				//we're moving to the left
+
+				carXPos = carXPos - 1;
+			}
+
+			else
+			{
+				//we're moving to the right
+				carXPos = carXPos + 1;
+			}
+		}
+
+		else if (takeTheHit && !selfish)
+		{
+			currentFuel = (currentFuel / 2); //cut fuel in half
+			mapArray[carXPos][carYPos] = HAZARD; //update car's map so future cars avoid this tile
+		}
+	}
+
 	//Check if we've run out of fuel for the current car
 	if (currentFuel == 0)
 	{
@@ -365,29 +479,6 @@ bool car::updateMap()
 
 	correctFuelX = fuelLocations[fuelIndicator]->x;
 	correctFuelY = fuelLocations[fuelIndicator]->y;
-/*
-	bool foundStation = false; //bool for controlling the loop if we find a visible fuel station
-
-	fstream fin; //set up file input
-	fin.open("coordinates.txt"); //open the file we made earlier when generation the random coordinates for the fuel station sequence
-	
-	//while we haven't found a fuel station
-	while (foundStation == false)
-	{
-		while (!fin.eof()) //while we haven't reached the end of the document
-		{
-			fin >> testX >> testY >> id; //grab the x and y coordinate of the current line in the document, along with its identifier
-			if (id == fuelIndicator) //if we have an identifier matching the indicator, we found the correct coordinates
-			{
-				correctFuelX = testX; //update correctFuelX
-				correctFuelY = testY; //update correctFuelY
-				foundStation = true; //set foundStation true so we can exit the loop
-			}
-		}
-
-		
-
-	}*/
 
 
 	//set the position w/in the reference map at correctFuelX and correctFuelY to equal 2 (the enum for fuel stations)
@@ -408,34 +499,73 @@ bool car::updateMap()
 
 	int newValue; //int to store the value to update the tiles to
 
-	//update the space to the left of the car
-	if (carXPos != MAP_LEFT_EDGE)
+				  //update tiles around the car before the map is printed to the screen
+
+				  //check left of the car
+	if (carXPos != 0)
 	{
-		newValue = mapMasterArray[carXPos - CAR_VIEW_RANGE][carYPos];
-		mapArray[carXPos - CAR_VIEW_RANGE][carYPos] = newValue;
+		int newValue = mapMasterArray[carXPos - CAR_VIEW_RANGE][carYPos];
+
+		if (newValue == HAZARD)
+		{
+			mapArray[carXPos - CAR_VIEW_RANGE][carYPos] = EMPTY;
+		}
+
+		else
+		{
+			mapArray[carXPos - CAR_VIEW_RANGE][carYPos] = newValue;
+		}
+
 	}
-	
-	//update the space above the car
-	if (carYPos != MAP_TOP_EDGE)
+	//check above the car
+	if (mapArray[carXPos][carYPos - CAR_VIEW_RANGE] == UNKNOWN && carYPos != MAP_TOP_EDGE)
 	{
-		newValue = mapMasterArray[carXPos][carYPos - CAR_VIEW_RANGE];
-		mapArray[carXPos][carYPos - CAR_VIEW_RANGE] = newValue;
+		int newValue = mapMasterArray[carXPos][carYPos - CAR_VIEW_RANGE];
+
+		if (newValue == HAZARD)
+		{
+			mapArray[carXPos][carYPos - CAR_VIEW_RANGE] = EMPTY;
+		}
+
+		else
+		{
+			mapArray[carXPos][carYPos - CAR_VIEW_RANGE] = newValue;
+		}
+
 	}
 
-	//update the space to the right of the car
-	if (carXPos != MAP_RIGHT_EDGE)
+	//check to the right of the car
+	if (mapArray[carXPos + CAR_VIEW_RANGE][carYPos] == UNKNOWN && carXPos != MAP_RIGHT_EDGE)
 	{
-		newValue = mapMasterArray[carXPos + CAR_VIEW_RANGE][carYPos];
-		mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = newValue;
+		int newValue = mapMasterArray[carXPos + CAR_VIEW_RANGE][carYPos];
+
+		if (newValue == HAZARD)
+		{
+			mapArray[carXPos + CAR_VIEW_RANGE][carYPos] = EMPTY;
+		}
+
+		else
+		{
+			mapArray[carXPos + CAR_VIEW_RANGE][carYPos] = newValue;
+		}
+
 	}
 
-	//update the space below the car
-	if (carYPos != MAP_BOTTOM_EDGE)
+	//check below the car
+	if (mapArray[carXPos][carYPos + CAR_VIEW_RANGE] == UNKNOWN && carYPos != MAP_BOTTOM_EDGE)
 	{
-		newValue = mapMasterArray[carXPos][carYPos + CAR_VIEW_RANGE];
-		mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = newValue;
-	}
+		int newValue = mapMasterArray[carXPos][carYPos + CAR_VIEW_RANGE];
 
+		if (newValue == HAZARD)
+		{
+			mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = EMPTY;
+		}
+
+		else
+		{
+			mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = newValue;
+		}
+	}
 	return true;
 }
 
@@ -481,25 +611,67 @@ int car::runSimulation()  //main function to run each car through the simulation
 		//check left of the car
 		if (carXPos != 0) 
 		{
-			int newValue = mapMasterArray[carXPos - 1][carYPos];
-			mapArray[carXPos - 1][carYPos] = newValue;
+			int newValue = mapMasterArray[carXPos - CAR_VIEW_RANGE][carYPos];
+
+			if (newValue == HAZARD)
+			{
+				mapArray[carXPos - CAR_VIEW_RANGE][carYPos] = EMPTY;
+			}
+
+			else
+			{
+				mapArray[carXPos - CAR_VIEW_RANGE][carYPos] = newValue;
+			}
+				
 		}
 		//check above the car
-		if (mapArray[carXPos][carYPos + CAR_VIEW_RANGE] == UNKNOWN && carYPos != 11)
+		if (mapArray[carXPos][carYPos -CAR_VIEW_RANGE] == UNKNOWN && carYPos != 0)
 		{
-			mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = mapMasterArray[carXPos][carYPos + CAR_VIEW_RANGE]; //set the value of the mapArray at space equal to the same space's contents in the reference map
-		}
+			int newValue = mapMasterArray[carXPos][carYPos - CAR_VIEW_RANGE];
 
+			if (newValue == HAZARD)
+			{
+				mapArray[carXPos][carYPos - CAR_VIEW_RANGE] = EMPTY;
+			}
+
+			else
+			{
+				mapArray[carXPos][carYPos - CAR_VIEW_RANGE] = newValue;
+			}
+			
+		}
+		
 		//check to the right of the car
-		if (mapArray[carXPos + CAR_VIEW_RANGE][carYPos] == UNKNOWN && carXPos != 11)
+		if (mapArray[carXPos + CAR_VIEW_RANGE][carYPos] == UNKNOWN && carXPos != MAP_SIZE)
 		{
-			mapArray[carXPos + CAR_VIEW_RANGE][carYPos] = mapMasterArray[carXPos + CAR_VIEW_RANGE][carYPos]; //set value of space in car's map equal to the value of the same space in the reference map
+			int newValue = mapMasterArray[carXPos + CAR_VIEW_RANGE][carYPos];
+
+			if (newValue == HAZARD)
+			{
+				mapArray[carXPos + CAR_VIEW_RANGE][carYPos] = EMPTY;
+			}
+		
+			else
+			{
+				mapArray[carXPos + CAR_VIEW_RANGE][carYPos]=newValue;
+			}
+			
 		}
 
 		//check below the car
-		if (mapArray[carXPos][carYPos - CAR_VIEW_RANGE] == UNKNOWN && carYPos != 0)
+		if (mapArray[carXPos][carYPos + CAR_VIEW_RANGE] == UNKNOWN && carYPos != MAP_SIZE)
 		{
-			mapArray[carXPos][carYPos - CAR_VIEW_RANGE] = mapMasterArray[carXPos][carYPos - CAR_VIEW_RANGE]; //update the space in the car's map to equal the value of the same space in the reference map
+			int newValue = mapMasterArray[carXPos][carYPos + CAR_VIEW_RANGE];
+
+			if (newValue == HAZARD)
+			{
+				mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = EMPTY;
+			}
+
+			else
+			{
+				mapArray[carXPos][carYPos + CAR_VIEW_RANGE] = newValue;
+			}
 		}
 
 

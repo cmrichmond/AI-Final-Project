@@ -1,1 +1,7 @@
-﻿
+﻿  car.cpp
+car.cpp(500): warning C4101: 'newValue': unreferenced local variable
+  Main.cpp
+  Generating code
+  All 291 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  AIFinal.vcxproj -> C:\Users\Patrick\Documents\GitHub\AI-Final-Project\Release\AIFinal.exe

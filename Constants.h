@@ -25,11 +25,6 @@ const int MAP_RIGHT_EDGE = MAP_SIZE; //constant ro represent the rightmose edge 
 
 //enums
 
-enum TILETYPE { UNKNOWN=0, EMPTY=1, FUEL=2, OBSTACLE=3, CAR=4, PASTMOVE=5 }; //enum to be used in mapArray to identify tile types for the car
-
-
-//std::random_device rdev;
-//std::default_random_engine e(rdev());
-//std::uniform_int_distribution<int> d(0, MAP_SIZE - 1);
-
+enum TILETYPE { UNKNOWN=0, EMPTY=1, FUEL=2, HAZARD=3, CAR=4, OBSTACLE=5 }; //enum to be used in mapArray to identify tile types for the car
+	
 #endif
