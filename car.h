@@ -40,9 +40,11 @@ public:
 	int fuelMapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contain all locations for fuel locations, w/ their values being their numbers in the sequences
 	struct Coord
 	{
-		int x;
-		int y;
+		float x;
+		float y;
 	};
+
+	int lastMove;
 
 	std::map<int, Coord*> fuelLocations;
 	std::map<int, Coord*> hazardLocations;

@@ -26,5 +26,5 @@ const int MAP_RIGHT_EDGE = MAP_SIZE; //constant ro represent the rightmose edge 
 //enums
 
 enum TILETYPE { UNKNOWN=0, EMPTY=1, FUEL=2, HAZARD=3, CAR=4, OBSTACLE=5 }; //enum to be used in mapArray to identify tile types for the car
-	
+enum LASTMOVE {UP=0, DOWN=1, LEFT=2, RIGHT=3, NA=4};
 #endif
