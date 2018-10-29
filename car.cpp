@@ -255,62 +255,82 @@ bool car::findMove()
 		{
 			//we need to move to the left
 			
-			//check what the target tile is
-			targetTile = carXPos - 1;
-
-			if (targetTile == HAZARD)
+			if (lastMove != RIGHT)
 			{
-				//do a coin flip to decide if we move up or down a single tile to avoid the move
+				//check what the target tile is
+				targetTile = carXPos - 1;
 
-				int randChoice = d(e) % 2;
-				if (randChoice == 1)
+				if (targetTile == HAZARD)
 				{
-					//if we made an even number, move up one tile
+					//do a coin flip to decide if we move up or down a single tile to avoid the move
 
-					carYPos = carYPos-1;
-					lastMove = UP;
-					
+					int randChoice = d(e) % 2;
+					if (randChoice == 1)
+					{
+						//if we made an even number, move up one tile
+
+						carYPos = carYPos - 1;
+						lastMove = UP;
+
+					}
+
+					else
+					{
+						//if we landed on an odd number, move down one tile
+
+						carYPos = carYPos + 1;
+						lastMove = DOWN;
+					}
 				}
 
 				else
 				{
-					//if we landed on an odd number, move down one tile
-
-					carYPos = carYPos + 1;
-					lastMove = DOWN;
+					carXPos = carXPos - 1;
+					lastMove = LEFT;
 				}
 			}
 
-			else
-			{
-				carXPos = carXPos - 1;
-				lastMove = LEFT;
-			}
+			
 		}
 
 		else if (carXPos<targetX)
 		{
-			int randChoice = d(e) % 2;
-			if (randChoice == 1)
+
+			if (lastMove != LEFT)
 			{
-				//if we made an even number, move up one tile
+				targetTile = carXPos + 1;
 
-				carYPos = carYPos - 1;
-				lastMove = UP;
+				if (targetTile == HAZARD)
+				{
+					int randChoice = d(e) % 2;
+					if (randChoice == 1)
+					{
+						//if we made an even number, move up one tile
 
-			}
+						carYPos = carYPos - 1;
+						lastMove = UP;
 
-			else
-			{
-				//if we landed on an odd number, move down one tile
+					}
 
-				carYPos = carYPos + 1;
-				lastMove = DOWN;
+					else
+					{
+						//if we landed on an odd number, move down one tile
+
+						carYPos = carYPos + 1;
+						lastMove = DOWN;
+					}
+
+				}
+
+				else
+				{
+					//we need to move to the right
+					carXPos = carXPos + 1;
+					lastMove = RIGHT;
+				}
 			}
 			
-			//we need to move to the right
-			carXPos = carXPos + 1;
-			lastMove = RIGHT;
+
 		}
 	}
 
@@ -322,68 +342,78 @@ bool car::findMove()
 
 		if (carYPos > targetY)
 		{
-			//if the car is above the target, it needs to move down
-			targetTile = carYPos +1;
 
-			if (targetTile == HAZARD)
+			if (lastMove != UP)
 			{
-				int randChoice = d(e) % 2;
-				if (randChoice == 1)
+				//if the car is above the target, it needs to move down
+				targetTile = carYPos + 1;
+
+				if (targetTile == HAZARD)
 				{
-					//if we made an even number, move left one tile
+					int randChoice = d(e) % 2;
+					if (randChoice == 1)
+					{
+						//if we made an even number, move left one tile
 
-					carXPos = carXPos - 1;
-					lastMove == LEFT;
+						carXPos = carXPos - 1;
+						lastMove == LEFT;
 
+					}
+
+					else
+					{
+						//if we landed on an odd number, move right one tile
+
+						carXPos = carXPos + 1;
+						lastMove = RIGHT;
+					}
 				}
 
 				else
 				{
-					//if we landed on an odd number, move right one tile
-
-					carXPos = carXPos + 1;
-					lastMove = RIGHT;
+					carYPos = carYPos + 1;
+					lastMove = DOWN;
 				}
 			}
-
-			else
-			{
-				carYPos = carYPos + 1;
-				lastMove = DOWN;
-			}
+			
 		}
 
 		else if (carYPos < targetY)
 		{
-			//if the car is below the target, it needs to move up
-			targetTile = carYPos - 1;
 
-			if (targetTile == HAZARD)
+			if (lastMove != DOWN)
 			{
-				int randChoice = d(e) % 2;
-				if (randChoice == 1)
+				//if the car is below the target, it needs to move up
+				targetTile = carYPos - 1;
+
+				if (targetTile == HAZARD)
 				{
-					//if we made an even number, move left one tile
+					int randChoice = d(e) % 2;
+					if (randChoice == 1)
+					{
+						//if we made an even number, move left one tile
 
-					carXPos = carXPos - 1;
-					lastMove = LEFT;
+						carXPos = carXPos - 1;
+						lastMove = LEFT;
 
+					}
+
+					else
+					{
+						//if we landed on an odd number, move down one tile
+
+						carXPos = carXPos + 1;
+						lastMove = RIGHT;
+					}
 				}
 
 				else
 				{
-					//if we landed on an odd number, move down one tile
-
-					carXPos = carXPos + 1;
-					lastMove = RIGHT;
+					carYPos = carYPos - 1;
+					lastMove = UP;
 				}
 			}
-
-			else
-			{
-				carYPos = carYPos - 1;
-				lastMove = UP;
-			}
+			
 		}
 	}
 
