@@ -24,6 +24,23 @@ int numCars=0; //int variable to track the number of cars that have been run thr
 int currentFuelStation=0; //int variable to act as an index for the current fuel station
 int numMoves=0; //int variable to keep track of how many successful moves the current car has made in the simulation
 
+int lastFuel;
+int lastStations;
+int lastMoves;
+
+bool checkingChain = false;
+
+//function to print the results once the simulation has ended
+int printEnding(int numCars, int remainingFuel, int stationsReached, int totalMoves)
+{
+	cout << "The simulation finished running and produced a fully optimized route." << endl;
+	cout << "This route was generated after running " << numCars << " through the simulation" << endl;
+	cout << " After discovering this route, each car will make " << totalMoves << " moves total, reaching all " <<
+		stationsReached << " fuel stations, and ending with exactly " << remainingFuel <<
+		" units of fuel remaining";
+
+	return 0;
+}
 
 int main()
 {
@@ -59,8 +76,9 @@ int main()
 	while (!hasWon)
 	{
 		//run a car through the simulation
-		int resultScore=newCar->runSimulation();
-		
+		map<RETURNTYPE, int> resultScore=newCar->runSimulation();
+	
+		/*
 		if (resultScore >= 100)
 		{
 			hasWon = true;
@@ -76,6 +94,88 @@ int main()
 
 			cout << "Car #" << currentCar << " failed. Starting a new car now" << endl << endl;
 		}
+		*/
+
+		//grab values of totalMoves, stationsReached, and remainingFuel
+
+		int totalMoves = resultScore[TOTAL_MOVES];
+		int stationsReached = resultScore[STATIONS_REACHED];
+		int remainingFuel = resultScore[REMAINING_FUEL];
+
+		//check if we hit all of the fuel stations on the last run
+
+		if (stationsReached == NUM_FUEL_STATIONS)
+		{
+			//next, check if we're already holding values from the last run
+
+			//if we aren't holding data from the last run
+
+			if (!checkingChain)
+			{
+				//we need to store the values from this run
+
+				lastFuel = remainingFuel;
+				lastMoves = totalMoves;
+				lastStations = stationsReached;
+
+				//switch checkingChain to true so if the next run is successful, we compare values
+				checkingChain = true;
+			}
+
+			//otherwise, we must have values stored from the last run and we need to compare to see if the path is optimal
+			else 
+			{
+				if (stationsReached == lastStations)
+				{
+					cout << "The car reached the same number of stations as the last car. Checking totalMoves next" << endl;
+
+					if (lastMoves == totalMoves)
+					{
+						cout << "The car ended with the same number of moves as the last car. Checking remainingFuel next" << endl;
+
+						if (remainingFuel == lastFuel)
+						{
+							cout << "The car ended with the same amount of remaining fuel as the last car. All three statistics match. Path must be fully optimized" << endl << endl;
+
+							cout << "Exiting simulation" << endl;
+
+							printEnding(numCars, remainingFuel, stationsReached, totalMoves); //call print function for the win condition
+
+							hasWon = true; //exit the loop
+						}
+
+						else
+						{
+							cout << "The car did not end with the same amount of remaining fuel as the last car. Path not fully optimized yet" << endl << endl;
+
+							lastFuel = remainingFuel;
+							lastStations = stationsReached;
+							lastMoves = totalMoves;
+						}
+					}
+
+					else
+					{
+						cout << "The car did not end with the same number of moves as the last car. Path not optimized fully yet" << endl << endl;
+
+						lastFuel = remainingFuel;
+						lastStations = stationsReached;
+						lastMoves = totalMoves;
+					}
+				}
+
+				else
+				{
+					cout << "The car did not reach the same number of stations as the last car. Path not optimized fully yet" << endl << endl;
+					
+					//reset value for checkingChain
+
+					lastFuel = remainingFuel;
+					lastStations = stationsReached;
+					lastMoves = totalMoves;
+				}
+			}
+		}
 
 		if (numCars >= MAX_GENERATIONS)
 		{
@@ -87,5 +187,7 @@ int main()
 	}
 
 	return 0;
+
+
 	
 }

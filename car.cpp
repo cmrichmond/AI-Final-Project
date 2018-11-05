@@ -258,7 +258,7 @@ bool car::findMove()
 			if (lastMove != RIGHT)
 			{
 				//check what the target tile is
-				targetTile = carXPos - 1;
+				targetTile = mapArray[carXPos - 1][carYPos];
 
 				if (targetTile == HAZARD)
 				{
@@ -298,7 +298,7 @@ bool car::findMove()
 
 			if (lastMove != LEFT)
 			{
-				targetTile = carXPos + 1;
+				targetTile = mapArray[carXPos + 1][carYPos];
 
 				if (targetTile == HAZARD)
 				{
@@ -346,7 +346,7 @@ bool car::findMove()
 			if (lastMove != UP)
 			{
 				//if the car is above the target, it needs to move down
-				targetTile = carYPos + 1;
+				targetTile = mapArray[carXPos][carYPos + 1];
 
 				if (targetTile == HAZARD)
 				{
@@ -384,7 +384,7 @@ bool car::findMove()
 			if (lastMove != DOWN)
 			{
 				//if the car is below the target, it needs to move up
-				targetTile = carYPos - 1;
+				targetTile = mapArray[carXPos][carYPos - 1];
 
 				if (targetTile == HAZARD)
 				{
@@ -656,7 +656,7 @@ bool car::updateMap()
 
 	}
 	//check above the car
-	if (mapArray[carXPos][carYPos - CAR_VIEW_RANGE] == UNKNOWN && carYPos != MAP_TOP_EDGE)
+	if (mapArray[carXPos][carYPos - CAR_VIEW_RANGE] == UNKNOWN)
 	{
 		int newValue = mapMasterArray[carXPos][carYPos - CAR_VIEW_RANGE];
 
@@ -673,7 +673,7 @@ bool car::updateMap()
 	}
 
 	//check to the right of the car
-	if (mapArray[carXPos + CAR_VIEW_RANGE][carYPos] == UNKNOWN && carXPos != MAP_RIGHT_EDGE)
+	if (mapArray[carXPos + CAR_VIEW_RANGE][carYPos] == UNKNOWN)
 	{
 		int newValue = mapMasterArray[carXPos + CAR_VIEW_RANGE][carYPos];
 
@@ -690,7 +690,7 @@ bool car::updateMap()
 	}
 
 	//check below the car
-	if (mapArray[carXPos][carYPos + CAR_VIEW_RANGE] == UNKNOWN && carYPos != MAP_BOTTOM_EDGE)
+	if (mapArray[carXPos][carYPos + CAR_VIEW_RANGE] == UNKNOWN )
 	{
 		int newValue = mapMasterArray[carXPos][carYPos + CAR_VIEW_RANGE];
 
@@ -707,10 +707,11 @@ bool car::updateMap()
 	return true;
 }
 
-int car::runSimulation()  //main function to run each car through the simulation
+map<RETURNTYPE, int> car::runSimulation()  //main function to run each car through the simulation
 {
 	cout << "Current car= " << currentCar << endl << endl; //output the car we're on
 
+	map<RETURNTYPE, int> returnValues;
 	//clear past run's fuel station from the map so we don't have it and the actual first model on the board simultaneously
 
 	for (int a = 0; a < MAP_SIZE; a++)
@@ -842,5 +843,5 @@ int car::runSimulation()  //main function to run each car through the simulation
 	numCars++;
 
 	//return numCars
-	return numMoves;
+	return returnValues;
 }

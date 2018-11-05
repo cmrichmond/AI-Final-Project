@@ -55,7 +55,7 @@ public:
 	//Functions
 
 	bool Initialize(); //function to initialize values
-	int runSimulation(); //function to run the cars through the simualtion
+	map<RETURNTYPE, int> runSimulation(); //function to run the cars through the simualtion
 	bool updateMap(); //function to update the map w/in the car's vision range
 	bool findMove(); //function to find and execute the car's next move
 	bool checkCar(); //function to check for various effects/condiions after the car finishes a move

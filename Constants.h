@@ -20,11 +20,13 @@ const int MAX_GENERATIONS = 4;
 //map edge constants
 const int MAP_TOP_EDGE = 0; //constant to represent the top edge of the board
 const int MAP_BOTTOM_EDGE = MAP_SIZE; //constant to represent the bottom edge of the board
-const int MAP_LEFT_EDGE = 0; ///constant to represent the leftmost edge of the board
+const int MAP_LEFT_EDGE = 0; //constant to represent the leftmost edge of the board
 const int MAP_RIGHT_EDGE = MAP_SIZE; //constant ro represent the rightmose edge of the board
+
 
 //enums
 
 enum TILETYPE { UNKNOWN=0, EMPTY=1, FUEL=2, HAZARD=3, CAR=4, OBSTACLE=5 }; //enum to be used in mapArray to identify tile types for the car
 enum LASTMOVE {UP=0, DOWN=1, LEFT=2, RIGHT=3, NA=4};
+enum RETURNTYPE {TOTAL_MOVES, STATIONS_REACHED, REMAINING_FUEL};
 #endif
