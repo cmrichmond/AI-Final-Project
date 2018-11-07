@@ -1,3 +1,7 @@
+#ifndef CAR_H
+#define CAR_H
+
+
 #pragma once
 #include "Constants.h"
 #include <iostream>
@@ -38,6 +42,7 @@ public:
 	int mapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map data
 	int mapMasterArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contains the data for fuel spawns and other stuff; a teacher's version essentially 
 	int fuelMapArray[MAP_SIZE][MAP_SIZE]; //2d array to store the map that contain all locations for fuel locations, w/ their values being their numbers in the sequences
+	
 	struct Coord
 	{
 		float x;
@@ -55,7 +60,7 @@ public:
 	//Functions
 
 	bool Initialize(); //function to initialize values
-	map<RETURNTYPE, int> runSimulation(); //function to run the cars through the simualtion
+	std::map <RETURNTYPE, int> runSimulation(); //function to run the cars through the simualtion
 	bool updateMap(); //function to update the map w/in the car's vision range
 	bool findMove(); //function to find and execute the car's next move
 	bool checkCar(); //function to check for various effects/condiions after the car finishes a move
@@ -63,5 +68,7 @@ public:
 	int findDistance(Coord*, Coord*);
 	int getNumCars();
 	;
+
 };
 
+#endif;

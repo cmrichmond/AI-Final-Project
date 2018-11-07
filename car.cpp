@@ -1,6 +1,5 @@
 #include "car.h"
 
-#include <cstdlib>
 
 using namespace std;
 
@@ -707,7 +706,7 @@ bool car::updateMap()
 	return true;
 }
 
-map<RETURNTYPE, int> car::runSimulation()  //main function to run each car through the simulation
+std::map<RETURNTYPE, int> car::runSimulation()  //main function to run each car through the simulation
 {
 	cout << "Current car= " << currentCar << endl << endl; //output the car we're on
 
