@@ -1,9 +1,6 @@
 #include "car.h"
 
-
 using namespace std;
-
-
 
 car::car()
 {
@@ -124,6 +121,28 @@ int car::getNumCars()
 	return numCars;
 }
 
+bool car::checkXWrap(int carXPosition, int targetXPosition)
+{
+	int testDistance = (MAP_SIZE / 2);
+	int distance = abs(carXPosition - targetXPosition);
+
+	if (distance > testDistance)
+		return true;
+	else
+		return false;
+}
+
+bool car::checkYWrap(int carYPosition, int targetYPosition)
+{
+	int testDistance = (MAP_SIZE / 2);
+	int distance = abs(carYPosition - targetYPosition);
+
+	if (distance > testDistance)
+		return true;
+	else
+		return false;
+}
+
 //function to find distance between two provided corodinate pairs
 //int car::findDistance(int xPos1, int yPos1, int xPos2, int yPos2)
 int car::findDistance(Coord* point1, Coord* point2)
@@ -241,11 +260,14 @@ bool car::findMove()
 		}
 	}
 
+	//FIXME need to add logic for wrapping around here
+
 	//PART TWO: Execute the determined move
 
 	//Check if we're lined up on the x axis with our target
 	
 	int targetTile; //int value to track the type of tile the car goes to move onto
+	bool wrapping;
 
 	if (carXPos != targetX)
 	{
@@ -253,40 +275,64 @@ bool car::findMove()
 		if (carXPos > targetX)
 		{
 			//we need to move to the left
-			
+
 			if (lastMove != RIGHT)
 			{
-				//check what the target tile is
-				targetTile = mapArray[carXPos - 1][carYPos];
+				wrapping = checkXWrap(carXPos, targetX); //check if itll be faster to wrap around or walk straight
 
-				if (targetTile == HAZARD)
+				if (wrapping)
 				{
-					//do a coin flip to decide if we move up or down a single tile to avoid the move
+					//if returned true, we should use the wrap around effect
 
-					int randChoice = d(e) % 2;
-					if (randChoice == 1)
+					//if we've moved off the left edge already
+					if (carXPos < MAP_LEFT_EDGE) 
 					{
-						//if we made an even number, move up one tile
+						carXPos = MAP_RIGHT_EDGE;
+					}
 
-						carYPos = carYPos - 1;
-						lastMove = UP;
+					//if we haven't finished wrapping around yet
+					else
+					{
+						carXPos = carXPos - 1;
+					}
+				}
+				
+				//if we aren't wrapping around the edge, we need to move normally
+				else
+				{
+					targetTile = mapArray[carXPos - 1][carYPos];
 
+					if (targetTile == HAZARD)
+					{
+						//do a coin flip to decide if we move up or down a single tile to avoid the move
+
+						int randChoice = d(e) % 2;
+						if (randChoice == 1)
+						{
+							//if we made an even number, move up one tile
+
+							carYPos = carYPos - 1;
+							lastMove = UP;
+
+						}
+
+						else
+						{
+							//if we landed on an odd number, move down one tile
+
+							carYPos = carYPos + 1;
+							lastMove = DOWN;
+						}
 					}
 
 					else
 					{
-						//if we landed on an odd number, move down one tile
-
-						carYPos = carYPos + 1;
-						lastMove = DOWN;
+						carXPos = carXPos - 1;
+						lastMove = LEFT;
 					}
 				}
+				//check what the target tile is
 
-				else
-				{
-					carXPos = carXPos - 1;
-					lastMove = LEFT;
-				}
 			}
 
 			
@@ -297,36 +343,59 @@ bool car::findMove()
 
 			if (lastMove != LEFT)
 			{
-				targetTile = mapArray[carXPos + 1][carYPos];
+				//check if we should wrap around the map
 
-				if (targetTile == HAZARD)
+				wrapping = checkXWrap(carXPos, targetX);
+
+				//if we need to wrap
+				if (wrapping)
 				{
-					int randChoice = d(e) % 2;
-					if (randChoice == 1)
+					if (carXPos > MAP_SIZE)
 					{
-						//if we made an even number, move up one tile
+						carXPos = MAP_LEFT_EDGE;
+					}
 
-						carYPos = carYPos - 1;
-						lastMove = UP;
+					else
+					{
+						carXPos = carXPos + 1;
+					}
+				}
+
+				else
+				{
+					targetTile = mapArray[carXPos + 1][carYPos];
+
+					if (targetTile == HAZARD)
+					{
+						int randChoice = d(e) % 2;
+						if (randChoice == 1)
+						{
+							//if we made an even number, move up one tile
+
+							carYPos = carYPos - 1;
+							lastMove = UP;
+
+						}
+
+						else
+						{
+							//if we landed on an odd number, move down one tile
+
+							carYPos = carYPos + 1;
+							lastMove = DOWN;
+						}
 
 					}
 
 					else
 					{
-						//if we landed on an odd number, move down one tile
-
-						carYPos = carYPos + 1;
-						lastMove = DOWN;
+						//we need to move to the right
+						carXPos = carXPos + 1;
+						lastMove = RIGHT;
 					}
-
 				}
 
-				else
-				{
-					//we need to move to the right
-					carXPos = carXPos + 1;
-					lastMove = RIGHT;
-				}
+
 			}
 			
 
@@ -339,78 +408,121 @@ bool car::findMove()
 	{
 		//check if the car needs to move up or down
 
-		if (carYPos > targetY)
+		if (carYPos < targetY)
 		{
-
+			
 			if (lastMove != UP)
 			{
-				//if the car is above the target, it needs to move down
-				targetTile = mapArray[carXPos][carYPos + 1];
+				//check if we should wrap around the map
+				wrapping = checkYWrap(carYPos, targetY);
 
-				if (targetTile == HAZARD)
+				//if wrapping returned true
+				if (wrapping)
 				{
-					int randChoice = d(e) % 2;
-					if (randChoice == 1)
+					if (carYPos > MAP_SIZE)
 					{
-						//if we made an even number, move left one tile
-
-						carXPos = carXPos - 1;
-						lastMove == LEFT;
-
+						carYPos = MAP_TOP_EDGE;
 					}
-
+					
 					else
 					{
-						//if we landed on an odd number, move right one tile
-
-						carXPos = carXPos + 1;
-						lastMove = RIGHT;
+						carYPos = carYPos + 1;
 					}
 				}
 
 				else
 				{
-					carYPos = carYPos + 1;
-					lastMove = DOWN;
+					//if the car is above the target, it needs to move down
+					targetTile = mapArray[carXPos][carYPos + 1];
+
+					if (targetTile == HAZARD)
+					{
+						int randChoice = d(e) % 2;
+						if (randChoice == 1)
+						{
+							//if we made an even number, move left one tile
+
+							carXPos = carXPos - 1;
+							lastMove == LEFT;
+
+						}
+
+						else
+						{
+							//if we landed on an odd number, move right one tile
+
+							carXPos = carXPos + 1;
+							lastMove = RIGHT;
+						}
+					}
+
+					else
+					{
+						carYPos = carYPos + 1;
+						lastMove = DOWN;
+					}
 				}
+
 			}
 			
 		}
 
-		else if (carYPos < targetY)
+		else if (carYPos > targetY)
 		{
 
 			if (lastMove != DOWN)
 			{
-				//if the car is below the target, it needs to move up
-				targetTile = mapArray[carXPos][carYPos - 1];
 
-				if (targetTile == HAZARD)
+				//check if we should wrap around the top of the map
+
+				wrapping = checkYWrap(carXPos, targetY);
+
+				if (wrapping)
 				{
-					int randChoice = d(e) % 2;
-					if (randChoice == 1)
+					if (carYPos < MAP_TOP_EDGE)
 					{
-						//if we made an even number, move left one tile
-
-						carXPos = carXPos - 1;
-						lastMove = LEFT;
-
+						carYPos = MAP_BOTTOM_EDGE;
 					}
 
 					else
 					{
-						//if we landed on an odd number, move down one tile
-
-						carXPos = carXPos + 1;
-						lastMove = RIGHT;
+						carYPos--;
 					}
 				}
 
 				else
 				{
-					carYPos = carYPos - 1;
-					lastMove = UP;
+					//if the car is below the target, it needs to move up
+					targetTile = mapArray[carXPos][carYPos - 1];
+
+					if (targetTile == HAZARD)
+					{
+						int randChoice = d(e) % 2;
+						if (randChoice == 1)
+						{
+							//if we made an even number, move left one tile
+
+							carXPos = carXPos - 1;
+							lastMove = LEFT;
+
+						}
+
+						else
+						{
+							//if we landed on an odd number, move down one tile
+
+							carXPos = carXPos + 1;
+							lastMove = RIGHT;
+						}
+					}
+
+					else
+					{
+						carYPos = carYPos - 1;
+						lastMove = UP;
+					}
 				}
+
 			}
 			
 		}
@@ -562,15 +674,25 @@ bool car::checkCar()
 	//Check if we've run out of fuel for the current car
 	if (currentFuel == 0)
 	{
+		//update returnValues map
+
+		returnValues[TOTAL_MOVES] = numMoves;
+		returnValues[STATIONS_REACHED] = fuelIndicator + 1;
+		returnValues[REMAINING_FUEL] = currentFuel;
+		
 		//update hasFinished boolean variable to indicate that the current car has finished the simulation
 		hasFinished = true;
 	}
 
-	//check if we've hit 100 moves
+	//check if we've won
 
-	if (numMoves >= 100)
+	if (fuelIndicator == NUM_FUEL_STATIONS)
 	{
-		hasFinished = true; //set hasFinished true so we can exit the while loop in runSimulation
+		returnValues[TOTAL_MOVES] = numMoves;
+	 	returnValues[STATIONS_REACHED] = fuelIndicator + 1;
+		returnValues[REMAINING_FUEL] = currentFuel;
+
+		hasFinished = true;
 	}
 
 	//clear the map of any past car positions
@@ -710,7 +832,7 @@ std::map<RETURNTYPE, int> car::runSimulation()  //main function to run each car 
 {
 	cout << "Current car= " << currentCar << endl << endl; //output the car we're on
 
-	map<RETURNTYPE, int> returnValues;
+
 	//clear past run's fuel station from the map so we don't have it and the actual first model on the board simultaneously
 
 	for (int a = 0; a < MAP_SIZE; a++)

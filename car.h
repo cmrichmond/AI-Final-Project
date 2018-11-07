@@ -55,6 +55,7 @@ public:
 	std::map<int, Coord*> hazardLocations;
 	std::map<int, Coord*>::iterator mapIterator;
 
+	std::map<RETURNTYPE, int> returnValues;
 
 
 	//Functions
@@ -64,6 +65,9 @@ public:
 	bool updateMap(); //function to update the map w/in the car's vision range
 	bool findMove(); //function to find and execute the car's next move
 	bool checkCar(); //function to check for various effects/condiions after the car finishes a move
+
+	bool checkXWrap(int, int); //function to check if car should wrap around the map on the x axis
+	bool checkYWrap(int, int); //function to check if car should wrap around the map on the y axis
 
 	int findDistance(Coord*, Coord*);
 	int getNumCars();
